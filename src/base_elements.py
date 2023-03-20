@@ -15,22 +15,18 @@ if DEBUG:
 
 
 class Canvas:
-
     @classmethod
     def canvas_from_code(cls, code_str):
         block_strings = [
-            code_str[68*j : 68*(j+1)] for j in range(BLOCK_COUNT_DEFAULT)
+            code_str[68 * j : 68 * (j + 1)] for j in range(BLOCK_COUNT_DEFAULT)
         ]
-
 
         fresh_canvas = cls()
         fresh_canvas.blocks = [
             Block.block_from_code_string(code_string) for code_string in block_strings
         ]
 
-
         return fresh_canvas
-
 
     def __init__(
         self,
@@ -50,10 +46,10 @@ class Canvas:
     def _create_random_block(self):
         x_max, y_max = self.canvas_size
         random_coords = (
-            random.randint(0, x_max-1),
-            random.randint(0, x_max-1),
-            random.randint(0, y_max-1),
-            random.randint(0, y_max-1),
+            random.randint(0, x_max - 1),
+            random.randint(0, x_max - 1),
+            random.randint(0, y_max - 1),
+            random.randint(0, y_max - 1),
         )
 
         random_color_data = (
@@ -117,13 +113,14 @@ class Canvas:
 
         return distance / 3.0
 
-
-    def canvas_to_code_string(self):
+    @property
+    def code(self):
         canvas_code = ""
         for block in self.blocks:
             canvas_code += block.code
 
         return canvas_code
+
 
 class Block:
     def __init__(self, location_coords, color_data, transparency):
@@ -133,19 +130,20 @@ class Block:
         x0, x1, y0, y1 = location_coords
         self.coordinates = (x0, x1, y0, y1)
 
-
         self.color = tuple(color_data)
         self.transparency = transparency
 
     @classmethod
     def block_from_code_string(cls, code_string):
-        
+
         location_coords = [
-            cls.code_string_to_number(code_string[9*i:9*(i+1)]) for i in range(0,4)
+            cls.code_string_to_number(code_string[9 * i : 9 * (i + 1)])
+            for i in range(0, 4)
         ]
 
         color_data = [
-            cls.code_string_to_number(code_string[36+8*i:36+8*(i+1)]) for i in range(0,3)
+            cls.code_string_to_number(code_string[36 + 8 * i : 36 + 8 * (i + 1)])
+            for i in range(0, 3)
         ]
 
         transparency = cls.code_string_to_number(code_string[-8:])
@@ -176,11 +174,5 @@ class Block:
 
     @staticmethod
     def code_string_to_number(code_string):
-        try:
-            num = graycode.gray_code_to_tc(int(code_string, base=2))
-        except Exception as e:
-            print(code_string)
+        num = graycode.gray_code_to_tc(int(code_string, base=2))
         return num
-
-    def __hash__(self):
-        pass

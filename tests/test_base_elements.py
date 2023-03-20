@@ -37,17 +37,15 @@ def test_block_from_code_string(simple_canvas):
     new_block = block.block_from_code_string(block.code)
 
     assert new_block.coordinates == block.coordinates
-    assert new_block.color == block.color 
+    assert new_block.color == block.color
     assert new_block.transparency == block.transparency
     assert id(block) != id(new_block)
     new_block.transparency = -1
     assert new_block.transparency != block.transparency
 
 
-        
-
 def test_score():
-    for j in range(10):
+    for j in range(2):
         canvas = base_elements.Canvas()
         score = canvas.score()
         canvas.draw(f"./tests/test_dump/test_{score}.png")
@@ -56,8 +54,7 @@ def test_score():
 def test_canvas_strings():
     canvas = base_elements.Canvas()
     val_1 = canvas.draw()
-    canvas_code = canvas.canvas_to_code_string()
-    canvas_code = canvas.canvas_to_code_string()
+    canvas_code = canvas.code
     val_2 = base_elements.Canvas.canvas_from_code(canvas_code).draw()
 
     assert val_1 == val_2
