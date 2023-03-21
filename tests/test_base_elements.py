@@ -16,7 +16,6 @@ def test_canvas_init():
 
 
 def test_draw(simple_canvas):
-
     simple_canvas.draw("./tests/draw_test_image.png")
 
 

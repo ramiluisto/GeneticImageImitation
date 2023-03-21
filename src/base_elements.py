@@ -3,15 +3,11 @@ import graycode
 import random
 import math
 
-DEBUG = True
+
 DEFAULT_TEST_IMAGE_FILEPATH = "./data/RamiSquare.png"
 BLOCK_COUNT_DEFAULT = 16
 DEFAULT_CANVAS_SIZE = (512, 512)
 IMAGE_FORMAT = "RGB"
-
-
-if DEBUG:
-    random.seed = 42
 
 
 class Canvas:
@@ -35,7 +31,6 @@ class Canvas:
         canvas_size=DEFAULT_CANVAS_SIZE,
         image_format=IMAGE_FORMAT,
     ):
-
         self.src_image_filepath = src_image_filepath
         self.block_count = block_count
         self.canvas_size = canvas_size
@@ -90,27 +85,21 @@ class Canvas:
     def score(self, comparison_image=None):
         if comparison_image == None:
             comparison_image = Image.open(DEFAULT_TEST_IMAGE_FILEPATH)
-
         current_image = self.draw()
-
         score = self.image_distance(current_image, comparison_image)
-
         return score
 
     def image_distance(self, current_image, comparison_image):
-
         distances = tuple(
             self.point_distance(curr, comp)
             for curr, comp in zip(current_image.getdata(), comparison_image.getdata())
         )
-
         return sum(distances) / len(distances)
 
     def point_distance(self, rgb_1, rgb_2):
         distance = 0
         for a, b in zip(rgb_1, rgb_2):
             distance += abs(b - a) / 256.0
-
         return distance / 3.0
 
     @property
@@ -120,14 +109,13 @@ class Canvas:
             canvas_code += block.code
 
         return canvas_code
-    
+
     def __hash__(self):
         return self.code.__hash__()
 
 
 class Block:
     def __init__(self, location_coords, color_data, transparency):
-
         location_coords = [max(0, min(value, 511)) for value in location_coords]
 
         x0, x1, y0, y1 = location_coords
@@ -138,7 +126,6 @@ class Block:
 
     @classmethod
     def block_from_code_string(cls, code_string):
-
         location_coords = [
             cls.code_string_to_number(code_string[9 * i : 9 * (i + 1)])
             for i in range(0, 4)
