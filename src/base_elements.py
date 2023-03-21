@@ -120,6 +120,9 @@ class Canvas:
             canvas_code += block.code
 
         return canvas_code
+    
+    def __hash__(self):
+        return self.code.__hash__()
 
 
 class Block:
