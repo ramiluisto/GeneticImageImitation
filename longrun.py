@@ -1,7 +1,7 @@
-from src.evolution import Simulation
+from src_numpy.evolution import Simulation
 
 
-if __name__ == "__main__":
+if __name__ == "NOT__main__":
     import os, json
 
     sim = Simulation(5)
@@ -20,3 +20,8 @@ if __name__ == "__main__":
             data = {canvas.code: score for canvas, score in sim.scored_canvases.items()}
             with open(data_path, "w") as fp:
                 json.dump(data, fp)
+
+
+if __name__ == "__main__":
+    sim = Simulation()
+    sim.run()

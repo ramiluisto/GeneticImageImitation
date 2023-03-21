@@ -4,8 +4,8 @@ import graycode
 import random
 import math
 
-DEFAULT_TEST_IMAGE_FILEPATH = "./data/RamiSquare.png"
-BLOCK_COUNT_DEFAULT = 16
+
+BLOCK_COUNT_DEFAULT = 64
 DEFAULT_CANVAS_SIZE = (512, 512)  # NOTE THAT INDECES RUN FROM 0..DIM-1
 IMAGE_FORMAT = "RGBA"
 RBGA_DIMENSIONS = (256, 256, 256, 256)  # NOTE THAT INDECES RUN FROM 0..DIM-1
@@ -13,40 +13,43 @@ RBGA_DIMENSIONS = (256, 256, 256, 256)  # NOTE THAT INDECES RUN FROM 0..DIM-1
 
 class Canvas:
     @classmethod
-    def from_code_string(cls, code_string, canvas_code_configuration, canvas_configuration):
+    def from_code_string(
+        cls, code_string, canvas_code_configuration, canvas_configuration
+    ):
         new_canvas = cls(**canvas_configuration)
 
+        new_canvas.rewrite_blocks_via_string(code_string)
+
+        return new_canvas
+
+    def rewrite_blocks_via_string(self, code_string):
         block_strings = []
-        block_count = canvas_code_configuration['block_count']
-        block_width = canvas_code_configuration['block_width']
+        block_count = self.canvas_code_configurations["block_count"]
+        block_width = self.canvas_code_configurations["block_width"]
         for block_idx in range(block_count):
-            substring = code_string[block_idx*block_width : (block_idx+1)*block_width]
-            
+            substring = code_string[
+                block_idx * block_width : (block_idx + 1) * block_width
+            ]
+
             block_strings.append(substring)
 
         blocks = [
             Block.from_code_string(
                 block_string,
-                code_configuration=new_canvas.block_code_configuration,
-                block_configuration=new_canvas.block_configuration,
+                code_configuration=self.block_code_configuration,
+                block_configuration=self.block_configuration,
             )
             for block_string in block_strings
         ]
-        new_canvas.blocks = blocks
-
-        return new_canvas
+        self.blocks = blocks
 
     def __init__(
         self,
-        src_image_filepath=DEFAULT_TEST_IMAGE_FILEPATH,
         block_count=BLOCK_COUNT_DEFAULT,
         canvas_size=DEFAULT_CANVAS_SIZE,
         image_format=IMAGE_FORMAT,
         rgba_dimensions=RBGA_DIMENSIONS,
     ):
-        self.src_image_filepath = src_image_filepath
-        self.comparison_image_array = self.load_image_as_np_array(src_image_filepath)
-
         self.block_count = block_count
         self.canvas_size = canvas_size
         self.rgba_dimensions = rgba_dimensions
@@ -61,11 +64,6 @@ class Canvas:
         self.block_code_configuration = self._generate_block_code_configurations()
         self.canvas_code_configurations = self._generate_canvas_code_configurations()
 
-    @staticmethod
-    def load_image_as_np_array(filepath):
-        comparison_image = Image.open(filepath).convert('RGB')
-
-        return np.array(comparison_image)
 
     def _generate_block_code_configurations(self):
         block_lengths = {len(block.code) for block in self.blocks}
@@ -118,14 +116,16 @@ class Canvas:
         for block in self.blocks:
             self.draw_block_to_canvas(base, block)
 
-        self.pil_img = base # for debug
+        self.pil_img = base  # for debug
 
         return np.array(base)
 
+    def draw(self):
+        self.np_array_reprensentation()
+        return self.pil_img
+
     def create_blank_canvas(self):
-        im = Image.new(
-            mode="RGB", size=self.canvas_size, color=(255, 255, 255)
-        )
+        im = Image.new(mode="RGB", size=self.canvas_size, color=(255, 255, 255))
         return im
 
     def draw_block_to_canvas(self, base, block):
@@ -134,20 +134,60 @@ class Canvas:
         rect_coords = [(x0, y0), (x0, y1), (x1, y1), (x1, y0)]
         drw.polygon(xy=rect_coords, fill=block.rgba)
 
-
-
     # Simulation api
 
-    def score(self) -> float:
+    def score(self, comp_img) -> float:
         np_img = self.np_array_reprensentation().astype(float)
-        comp_img = self.comparison_image_array.astype(float)
-        return np.linalg(np_img-comp_img)
+        return np.linalg.norm(np_img - comp_img)
 
     def mate(self, other_canvas):
-        pass
+        a_code = self.code
+        b_code = other_canvas.code
 
-    def mutate(self, entropy: int, style: str):
-        pass
+        block_strings = []
+        block_count = self.canvas_code_configurations["block_count"]
+        block_width = self.canvas_code_configurations["block_width"]
+        for block_idx in range(block_count):
+            code_string = random.choice([a_code, b_code])
+            substring = code_string[
+                block_idx * block_width : (block_idx + 1) * block_width
+            ]
+
+            block_strings.append(substring)
+
+        child_code = "".join(block_strings)
+
+        canvas_configuration = {
+            "block_count": self.block_count,
+            "canvas_size": self.canvas_size,
+            "image_format": self.image_format,
+            "rgba_dimensions": self.rgba_dimensions,
+        }
+
+        child_canvas = type(self).from_code_string(
+            child_code,
+            canvas_code_configuration=self.canvas_code_configurations,
+            canvas_configuration=canvas_configuration,
+        )
+
+        return child_canvas
+
+    def mutate(self, entropy: int, style: str = "pointwise"):
+        if style != "pointwise":
+            raise NotImplementedError
+
+        code = self.code
+        new_code = ""
+        indeces = random.sample(range(len(code)), entropy)
+        for idx, bit in enumerate(code):
+            if not (idx in indeces):
+                new_bit = bit
+            else:
+                new_bit = "0" if bit == "1" else "1"
+
+            new_code += new_bit
+
+        self.rewrite_blocks_via_string(new_code)
 
     # Special methods
 

@@ -109,18 +109,37 @@ def test_canvas_init():
     canvas.code
     canvas.__hash__
 
+
 def test_canvas_code_init():
     canvas = base_elements.Canvas()
     code = canvas.code
 
     canvas_configuration = {
-        "src_image_filepath" : canvas.src_image_filepath,
-        "block_count" : canvas.block_count,
-        "canvas_size" : canvas.canvas_size,
-        "image_format" : canvas.image_format,
-        "rgba_dimensions" : canvas.rgba_dimensions,
+        "src_image_filepath": canvas.src_image_filepath,
+        "block_count": canvas.block_count,
+        "canvas_size": canvas.canvas_size,
+        "image_format": canvas.image_format,
+        "rgba_dimensions": canvas.rgba_dimensions,
     }
     new_canvas = base_elements.Canvas.from_code_string(
-        code, 
-        canvas_code_configuration=canvas.canvas_code_configurations, 
-        canvas_configuration=canvas_configuration )
+        code,
+        canvas_code_configuration=canvas.canvas_code_configurations,
+        canvas_configuration=canvas_configuration,
+    )
+
+
+def test_mutate():
+    for j in range(10):
+        canvas = base_elements.Canvas()
+        old_code = canvas.code
+        canvas.mutate(j)
+        assert sum(a != b for a, b in zip(old_code, canvas.code)) == j
+
+
+def test_mate():
+    canvas_1 = base_elements.Canvas()
+    canvas_2 = base_elements.Canvas()
+
+    child = canvas_1.mate(canvas_2)
+
+    child.code
