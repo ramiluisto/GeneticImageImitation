@@ -7,23 +7,24 @@ CANVAS_COUNT = 16
 
 
 class Simulation:
-
-
     @staticmethod
     def load_image_as_np_array(filepath):
         comparison_image = Image.open(filepath).convert("RGB")
 
         return np.array(comparison_image)
-    
+
     def __init__(
         self,
         comparison_image_filepath=DEFAULT_TEST_IMAGE_FILEPATH,
         iter_limit=5,
         canvas_count=CANVAS_COUNT,
+        canvas_init_data={},
     ):
         self.comp_img = self.load_image_as_np_array(comparison_image_filepath)
-        self.canvases = [Canvas() for _ in range(CANVAS_COUNT)]
-        self.scored_canvases = {canvas: canvas.score(self.comp_img) for canvas in self.canvases}
+        self.canvases = [Canvas(**canvas_init_data) for _ in range(CANVAS_COUNT)]
+        self.scored_canvases = {
+            canvas: canvas.score(self.comp_img) for canvas in self.canvases
+        }
         self.iter_limit = iter_limit
         self.best_results = []
 
@@ -39,9 +40,9 @@ class Simulation:
         self.drop_worst()
         self.mate_best()
         self.mutate()
-        self.scored_canvases = {canvas: canvas.score(self.comp_img) for canvas in self.canvases}
-
-
+        self.scored_canvases = {
+            canvas: canvas.score(self.comp_img) for canvas in self.canvases
+        }
 
     def sort_canvases_by_score(self):
         self.canvases = sorted(self.canvases, key=lambda x: self.scored_canvases[x])

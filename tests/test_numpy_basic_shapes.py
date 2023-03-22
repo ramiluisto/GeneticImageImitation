@@ -115,7 +115,6 @@ def test_canvas_code_init():
     code = canvas.code
 
     canvas_configuration = {
-        "src_image_filepath": canvas.src_image_filepath,
         "block_count": canvas.block_count,
         "canvas_size": canvas.canvas_size,
         "image_format": canvas.image_format,

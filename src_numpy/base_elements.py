@@ -5,7 +5,7 @@ import random
 import math
 
 
-BLOCK_COUNT_DEFAULT = 64
+BLOCK_COUNT_DEFAULT = 16
 DEFAULT_CANVAS_SIZE = (512, 512)  # NOTE THAT INDECES RUN FROM 0..DIM-1
 IMAGE_FORMAT = "RGBA"
 RBGA_DIMENSIONS = (256, 256, 256, 256)  # NOTE THAT INDECES RUN FROM 0..DIM-1
@@ -63,7 +63,6 @@ class Canvas:
 
         self.block_code_configuration = self._generate_block_code_configurations()
         self.canvas_code_configurations = self._generate_canvas_code_configurations()
-
 
     def _generate_block_code_configurations(self):
         block_lengths = {len(block.code) for block in self.blocks}
